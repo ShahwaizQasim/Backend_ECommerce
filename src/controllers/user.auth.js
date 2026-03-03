@@ -79,16 +79,26 @@ const UserLogin = async (req, res) => {
       ENV.JWT_SECRET_KEY,
       { expiresIn: "7d" },
     );
-     res
+    res
       .status(201)
-      .send({ status: 201, message: "User Login Successfully", token:token});
+      .send({ status: 201, message: "User Login Successfully", token: token });
   } catch (error) {
-       res
+    res
       .status(500)
       .send({ status: 500, message: error.message || "", error: true });
     console.log(error);
-    
   }
 };
 
-export { UserRegister, UserLogin };
+const FindUser = async (req, res) => {
+  try {
+    const user = await UserModel.findOne({
+      _id: req.user._id,
+    });
+    res.status(200).send({ status: 200, error: false, user });
+  } catch (error) {
+    res.status(400).send({ status: 400, error: error.message || "error in functions" });
+  }
+};
+
+export { UserRegister, UserLogin, FindUser };

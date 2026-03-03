@@ -25,7 +25,7 @@ app.get("/", (req, res) => {
 app.use('/api', router)
 
 app.listen(ENV.PORT, () => {
-  console.log(`Example app listening on port ${ENV.PORT || 3000}`);
+  console.log(`Example app listening on port ${ENV.PORT}`);
 });
 
 

@@ -11,9 +11,9 @@
         type: String,
         required: true,
       },
-      ProductPicture:{
+      // ProductPicture:{
 
-      },
+      // },
       description: {
         type: String,
         trim: true,
