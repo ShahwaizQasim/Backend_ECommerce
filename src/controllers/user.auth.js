@@ -81,7 +81,7 @@ const UserLogin = async (req, res) => {
     );
     res
       .status(201)
-      .send({ status: 201, message: "User Login Successfully", token: token });
+      .send({ status: 201, message: "User Login Successfully",data:user, token: token });
   } catch (error) {
     res
       .status(500)
@@ -92,12 +92,26 @@ const UserLogin = async (req, res) => {
 
 const FindUser = async (req, res) => {
   try {
-    const user = await UserModel.findOne({
-      _id: req.user._id,
+
+    if (!req.user) {
+      return res.status(404).send({
+        status: 404,
+        error: true,
+        message: "User Not Found"
+      });
+    }
+
+    return res.status(200).send({
+      status: 200,
+      error: false,
+      user: req.user
     });
-    res.status(200).send({ status: 200, error: false, user });
+
   } catch (error) {
-    res.status(400).send({ status: 400, error: error.message || "error in functions" });
+    return res.status(400).send({
+      status: 400,
+      error: error.message || "error in functions"
+    });
   }
 };
 
