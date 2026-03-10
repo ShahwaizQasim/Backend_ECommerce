@@ -1,4 +1,5 @@
 import { ProductModel } from "../models/product.model.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const GetProducts = async (req, res) => {
   try {
@@ -42,9 +43,26 @@ const AddProducts = async (req, res) => {
         error: true,
       });
     }
+    const ProductPicturePath = req.file?.path;
+    console.log("productPicture Path++++", ProductPicturePath);
+    
+    if (!ProductPicturePath) {
+       res.status(400).send({
+        status: 400,
+        message: "Product Picture is required",
+        error: true,
+      });
+    }
+
+    const productPicture = await uploadOnCloudinary(ProductPicturePath);
+    console.log("productPicture", productPicture);
+    
+
+
     let addProducts = await ProductModel({
       ProductName,
       ProductPrice,
+      productPicture: productPicture.url,
       description,
     });
     addProducts = await addProducts.save();
@@ -56,6 +74,8 @@ const AddProducts = async (req, res) => {
         products: addProducts,
       });
   } catch (error) {
+    console.log("error", error.message);
+    
     res
       .status(500)
       .send({ status: 500, message: error.message || "", error: true });

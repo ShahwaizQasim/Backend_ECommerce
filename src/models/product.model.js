@@ -1,27 +1,28 @@
-  import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-  const ProductSchema = new Schema(
-    {
-      ProductName: {
-        type: String,
-        required: true,
-        trim: true,
-      },
-      ProductPrice: {
-        type: String,
-        required: true,
-      },
-      // ProductPicture:{
-
-      // },
-      description: {
-        type: String,
-        trim: true,
-      },
+const ProductSchema = new Schema(
+  {
+    ProductName: {
+      type: String,
+      required: true,
+      trim: true,
     },
-    {
-      timestamps: true,
+    ProductPrice: {
+      type: String,
+      required: true,
     },
-  );
+    ProductPicture: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      trim: true,
+    },
+  },
+  {
+    timestamps: true,
+  },
+);
 
-  export const ProductModel = mongoose.model("Product", ProductSchema);
+export const ProductModel = mongoose.model("Product", ProductSchema);
