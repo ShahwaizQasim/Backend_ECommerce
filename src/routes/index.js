@@ -24,6 +24,6 @@ router.post(
   upload.single("ProductPicture"),
   AddProducts,
 );
-router.get("/get/products", AuthenticationUsers, GetProducts);
+router.get("/get/products-get", AuthenticationUsers, GetProducts);
 
 export { router };

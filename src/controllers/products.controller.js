@@ -5,13 +5,11 @@ const GetProducts = async (req, res) => {
   try {
     let param = req.query;
     const GetAllProducts = await ProductModel.find(param);
-    res
-      .status(200)
-      .send({
-        status: 200,
-        message: "Products Fetch Successfully",
-        products: GetAllProducts,
-      });
+    res.status(200).send({
+      status: 200,
+      message: "Products Fetch Successfully",
+      products: GetAllProducts,
+    });
   } catch (error) {
     console.log("error+++", error);
     if (res.headersSent) return;
@@ -44,10 +42,9 @@ const AddProducts = async (req, res) => {
       });
     }
     const ProductPicturePath = req.file?.path;
-    console.log("productPicture Path++++", ProductPicturePath);
-    
+
     if (!ProductPicturePath) {
-       res.status(400).send({
+      res.status(400).send({
         status: 400,
         message: "Product Picture is required",
         error: true,
@@ -55,27 +52,22 @@ const AddProducts = async (req, res) => {
     }
 
     const productPicture = await uploadOnCloudinary(ProductPicturePath);
-    console.log("productPicture", productPicture);
-    
-
 
     let addProducts = await ProductModel({
       ProductName,
       ProductPrice,
-      productPicture: productPicture.url,
+      ProductPicture: productPicture?.url,
       description,
     });
     addProducts = await addProducts.save();
-    res
-      .status(201)
-      .send({
-        status: 201,
-        message: "Products Add Successfully",
-        products: addProducts,
-      });
+    res.status(201).send({
+      status: 201,
+      message: "Products Add Successfully",
+      products: addProducts,
+    });
   } catch (error) {
     console.log("error", error.message);
-    
+
     res
       .status(500)
       .send({ status: 500, message: error.message || "", error: true });
