@@ -4,6 +4,12 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 const GetProducts = async (req, res) => {
   try {
     let param = req.query;
+    if (param.ProductName) {
+  param.ProductName = {
+    $regex: param.ProductName,
+    $options: "i", // case-insensitive
+  };
+}
     const GetAllProducts = await ProductModel.find(param);
     res.status(200).send({
       status: 200,
