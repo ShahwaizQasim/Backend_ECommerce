@@ -2,6 +2,7 @@ import express from "express";
 import {
   AddProducts,
   GetProducts,
+  GetSingleProduct,
 } from "../controllers/products.controller.js";
 import { FindUser, UserLogin, UserRegister } from "../controllers/user.auth.js";
 import {
@@ -25,5 +26,6 @@ router.post(
   AddProducts,
 );
 router.get("/get/products-get", AuthenticationUsers, GetProducts);
+router.get("/get/products/:id", AuthenticationUsers, GetSingleProduct);
 
 export { router };

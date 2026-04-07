@@ -5,16 +5,32 @@ const GetProducts = async (req, res) => {
   try {
     let param = req.query;
     if (param.ProductName) {
-  param.ProductName = {
-    $regex: param.ProductName,
-    $options: "i", // case-insensitive
-  };
-}
-    const GetAllProducts = await ProductModel.find(param);
+      param.ProductName = {
+        $regex: param.ProductName,
+        $options: "i", // case-insensitive
+      };
+    }
+
+    const page = Number(param.page) || 1;
+    const limit = Number(param.limit) || 3;
+    const skip = (page - 1) * limit;
+
+    delete param.page;
+    delete param.limit;
+
+    const GetAllProducts = await ProductModel.find(param)
+      .skip(skip)
+      .limit(limit);
+
+    const total = await ProductModel.countDocuments(param);
+
     res.status(200).send({
       status: 200,
       message: "Products Fetch Successfully",
       products: GetAllProducts,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalProducts: total,
     });
   } catch (error) {
     console.log("error+++", error);
@@ -80,4 +96,27 @@ const AddProducts = async (req, res) => {
   }
 };
 
-export { GetProducts, AddProducts };
+const GetSingleProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log("id", id);
+    const product = await ProductModel.findById(id);
+    if (!product) {
+      return res
+        .status(404)
+        .send({ status: 404, message: "Product not found", error: true });
+    }
+    res.status(200).send({
+      status: 200,
+      message: "Products Fetch Successfully",
+      products: product,
+    });
+  } catch (error) {
+    console.log("error", error.message);
+    res
+      .status(500)
+      .send({ status: 500, message: error.message || "", error: true });
+  }
+};
+
+export { GetProducts, AddProducts, GetSingleProduct };
