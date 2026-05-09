@@ -2,13 +2,18 @@ import mongoose, { Schema } from "mongoose";
 
 const ProductSchema = new Schema(
   {
+    ProductSellerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Users",
+      required: true
+    },
     ProductName: {
       type: String,
       required: true,
       trim: true,
     },
     ProductPrice: {
-      type: String,
+      type: Number,
       required: true,
     },
     ProductPicture: {
@@ -19,6 +24,11 @@ const ProductSchema = new Schema(
       type: String,
       trim: true,
     },
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending"
+    }
   },
   {
     timestamps: true,

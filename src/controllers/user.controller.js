@@ -5,11 +5,16 @@ import { ENV } from "../config/constant.js";
 
 const UserRegister = async (req, res) => {
   try {
-    const { userName, email, password } = req.body;
+    const { userName, role, email, password } = req.body;
     if (!userName) {
       res
         .status(400)
         .send({ status: 400, message: "userName is required", error: true });
+    }
+    if (!role) {
+      res
+        .status(400)
+        .send({ status: 400, message: "role is required", error: true });
     }
     if (!email) {
       res
@@ -30,6 +35,7 @@ const UserRegister = async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 10);
     let addUser = await UserModel({
       userName,
+      role,
       email,
       password: passwordHash,
     });
@@ -75,13 +81,16 @@ const UserLogin = async (req, res) => {
       });
     }
     const token = jwt.sign(
-      { userId: user._id, email: user.email },
+      { userId: user._id, email: user.email, role: user.role },
       ENV.JWT_SECRET_KEY,
       { expiresIn: "7d" },
     );
-    res
-      .status(201)
-      .send({ status: 201, message: "User Login Successfully",data:user, token: token });
+    res.status(201).send({
+      status: 201,
+      message: "User Login Successfully",
+      data: user,
+      token: token,
+    });
   } catch (error) {
     res
       .status(500)
@@ -92,25 +101,23 @@ const UserLogin = async (req, res) => {
 
 const FindUser = async (req, res) => {
   try {
-
     if (!req.user) {
       return res.status(404).send({
         status: 404,
         error: true,
-        message: "User Not Found"
+        message: "User Not Found",
       });
     }
 
     return res.status(200).send({
       status: 200,
       error: false,
-      user: req.user
+      user: req.user,
     });
-
   } catch (error) {
     return res.status(400).send({
       status: 400,
-      error: error.message || "error in functions"
+      error: error.message || "error in functions",
     });
   }
 };

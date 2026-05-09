@@ -56,6 +56,8 @@ app.post("/create-checkout-session", async (req, res) => {
     res
       .status(500)
       .send({ status: 500, message: error.message || "", error: true });
+      console.log(error);
+      
   }
 });
 

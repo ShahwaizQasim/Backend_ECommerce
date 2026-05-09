@@ -4,9 +4,10 @@ import {
   GetProducts,
   GetSingleProduct,
 } from "../controllers/products.controller.js";
-import { FindUser, UserLogin, UserRegister } from "../controllers/user.auth.js";
+import { FindUser, UserLogin, UserRegister } from "../controllers/user.controller.js";
 import {
   AuthenticationUsers,
+  requireSeller,
   VerifyUser,
 } from "../middleware/auth.middleware.js";
 import { upload } from "../middleware/multer.middleware.js";
@@ -22,6 +23,7 @@ router.get("/UserInfo", VerifyUser, FindUser);
 router.post(
   "/add/product",
   AuthenticationUsers,
+  requireSeller,
   upload.single("ProductPicture"),
   AddProducts,
 );

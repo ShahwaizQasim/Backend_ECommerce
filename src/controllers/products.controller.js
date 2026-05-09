@@ -43,7 +43,7 @@ const GetProducts = async (req, res) => {
 
 const AddProducts = async (req, res) => {
   try {
-    const { ProductName, ProductPrice, description } = req.body;
+    const { ProductSellerId, ProductName, ProductPrice, description } = req.body;
     if (!ProductName) {
       res
         .status(400)
@@ -99,8 +99,8 @@ const AddProducts = async (req, res) => {
 const GetSingleProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log("id", id);
     const product = await ProductModel.findById(id);
+    
     if (!product) {
       return res
         .status(404)

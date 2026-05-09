@@ -44,8 +44,8 @@ const VerifyUser = async (req, res, next) => {
     // console.log("user++++", user);
 
     if (!user) {
-      return res.status(403).send({
-        status: 403,
+      return res.status(404).send({
+        status: 404,
         error: true,
         message: "User Not Found",
       });
@@ -61,4 +61,16 @@ const VerifyUser = async (req, res, next) => {
   }
 };
 
-export { AuthenticationUsers, VerifyUser };
+const requireSeller = (req, res, next) => {
+  if (req.user.role !== "seller") {
+    return res.status(403).json({ msg: "Seller only" });
+  }
+    if (!req.user.isSellerApproved) {
+    return res.status(403).json({
+      message: "Seller not approved by admin",
+    });
+  }
+  next();
+};
+
+export { AuthenticationUsers, VerifyUser, requireSeller };
