@@ -1,7 +1,8 @@
 import express from "express";
 import {
   AddProducts,
-  GetProducts,
+  GetAllProducts,
+  GetSellerProducts,
   GetSingleProduct,
 } from "../controllers/products.controller.js";
 import { FindUser, UserLogin, UserRegister } from "../controllers/user.controller.js";
@@ -11,6 +12,7 @@ import {
   VerifyUser,
 } from "../middleware/auth.middleware.js";
 import { upload } from "../middleware/multer.middleware.js";
+import { CreateOrder, OrdersGet } from "../controllers/orders.controller.js";
 
 const router = express.Router();
 
@@ -22,12 +24,17 @@ router.get("/UserInfo", VerifyUser, FindUser);
 // Products Api
 router.post(
   "/add/product",
-  AuthenticationUsers,
+  VerifyUser,
   requireSeller,
   upload.single("ProductPicture"),
   AddProducts,
 );
-router.get("/get/products-get", AuthenticationUsers, GetProducts);
-router.get("/get/products/:id", AuthenticationUsers, GetSingleProduct);
+router.get("/get/products-get", VerifyUser, GetSellerProducts);
+router.get("/get/products-get", VerifyUser, GetSellerProducts);
+router.get("/get/all-products", GetAllProducts);
+router.get("/get/products/:id", VerifyUser, GetSingleProduct);
 
+// Orders Api 
+router.post("/create/order", VerifyUser, AuthenticationUsers, CreateOrder);
+router.get("/get/orders", VerifyUser, AuthenticationUsers, OrdersGet);
 export { router };

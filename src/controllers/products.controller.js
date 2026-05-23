@@ -1,7 +1,7 @@
 import { ProductModel } from "../models/product.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
-const GetProducts = async (req, res) => {
+const GetSellerProducts = async (req, res) => {
   try {
     let param = req.query;
     if (param.ProductName) {
@@ -18,11 +18,60 @@ const GetProducts = async (req, res) => {
     delete param.page;
     delete param.limit;
 
-    const GetAllProducts = await ProductModel.find(param)
+    const filter = {
+      ...param,
+      ProductSellerId: req.user._id,
+    }
+
+    const GetAllProducts = await ProductModel.find(filter)
       .skip(skip)
       .limit(limit);
 
-    const total = await ProductModel.countDocuments(param);
+    const total = await ProductModel.countDocuments(filter);
+
+    res.status(200).send({
+      status: 200,
+      message: "Products Fetch Successfully",
+      products: GetAllProducts,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalProducts: total,
+    });
+  } catch (error) {
+    console.log("error+++", error);
+    if (res.headersSent) return;
+    res
+      .status(500)
+      .send({ status: 500, message: error.message || "", error: true });
+  }
+};
+
+const GetAllProducts = async (req, res) => {
+  try {
+    let param = req.query;
+    if (param.ProductName) {
+      param.ProductName = {
+        $regex: param.ProductName,
+        $options: "i", // case-insensitive
+      };
+    }
+
+    const page = Number(param.page) || 1;
+    const limit = Number(param.limit) || 3;
+    const skip = (page - 1) * limit;
+
+    delete param.page;
+    delete param.limit;
+
+    const filter = {
+      ...param,
+    }
+
+    const GetAllProducts = await ProductModel.find(filter)
+      .skip(skip)
+      .limit(limit);
+
+    const total = await ProductModel.countDocuments(filter);
 
     res.status(200).send({
       status: 200,
@@ -43,7 +92,7 @@ const GetProducts = async (req, res) => {
 
 const AddProducts = async (req, res) => {
   try {
-    const { ProductSellerId, ProductName, ProductPrice, description } = req.body;
+    const { ProductName, ProductPrice, description } = req.body;
     if (!ProductName) {
       res
         .status(400)
@@ -76,6 +125,7 @@ const AddProducts = async (req, res) => {
     const productPicture = await uploadOnCloudinary(ProductPicturePath);
 
     let addProducts = await ProductModel({
+      ProductSellerId: req.user._id,
       ProductName,
       ProductPrice,
       ProductPicture: productPicture?.url,
@@ -100,7 +150,7 @@ const GetSingleProduct = async (req, res) => {
   try {
     const { id } = req.params;
     const product = await ProductModel.findById(id);
-    
+
     if (!product) {
       return res
         .status(404)
@@ -119,4 +169,4 @@ const GetSingleProduct = async (req, res) => {
   }
 };
 
-export { GetProducts, AddProducts, GetSingleProduct };
+export { GetSellerProducts, AddProducts, GetSingleProduct, GetAllProducts };
