@@ -122,4 +122,93 @@ const FindUser = async (req, res) => {
   }
 };
 
-export { UserRegister, UserLogin, FindUser };
+const GetCustomers = async (req, res) => {
+  try {
+    const customers = await UserModel.find({
+      role: "customer"
+    }).select("-password");
+
+    res.status(200).send({
+      status: 200,
+      message: "Customers Fetch Successfully",
+      customers
+    });
+
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).send({
+      status: 500,
+      message: error.message,
+      error: true
+    });
+  }
+};
+
+const GetSellers = async (req, res) => {
+  try {
+    const sellers = await UserModel.find({
+      role: "seller"
+    }).select("-password");
+
+    res.status(200).send({
+      status: 200,
+      message: "Sellers Fetch Successfully",
+      sellers
+    });
+
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).send({
+      status: 500,
+      message: error.message,
+      error: true
+    });
+  }
+};
+
+const ApproveSeller = async (req, res) => {
+  try {
+    const { sellerId } = req.params;
+
+    const seller = await UserModel.findById(sellerId);
+
+    if (!seller) {
+      return res.status(404).send({
+        status: 404,
+        message: "Seller not found",
+        error: true
+      });
+    }
+
+    if (seller.role !== "seller") {
+      return res.status(400).send({
+        status: 400,
+        message: "User is not a seller",
+        error: true
+      });
+    }
+
+    seller.isSellerApproved = true;
+
+    await seller.save();
+
+    res.status(200).send({
+      status: 200,
+      message: "Seller Approved Successfully",
+      seller
+    });
+
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).send({
+      status: 500,
+      message: error.message,
+      error: true
+    });
+  }
+};
+
+export { UserRegister, UserLogin, FindUser, GetSellers, GetCustomers, ApproveSeller };

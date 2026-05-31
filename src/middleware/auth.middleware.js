@@ -73,4 +73,15 @@ const requireSeller = (req, res, next) => {
   next();
 };
 
-export { AuthenticationUsers, VerifyUser, requireSeller };
+const IsAdmin = (req, res, next) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).send({
+      status: 403,
+      message: "Access Denied"
+    });
+  }
+
+  next();
+};
+
+export { AuthenticationUsers, VerifyUser, requireSeller, IsAdmin };

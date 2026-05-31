@@ -5,9 +5,10 @@ import {
   GetSellerProducts,
   GetSingleProduct,
 } from "../controllers/products.controller.js";
-import { FindUser, UserLogin, UserRegister } from "../controllers/user.controller.js";
+import { ApproveSeller, FindUser, GetCustomers, GetSellers, UserLogin, UserRegister } from "../controllers/user.controller.js";
 import {
   AuthenticationUsers,
+  IsAdmin,
   requireSeller,
   VerifyUser,
 } from "../middleware/auth.middleware.js";
@@ -20,6 +21,9 @@ const router = express.Router();
 router.post("/register", UserRegister);
 router.post("/login", UserLogin);
 router.get("/UserInfo", VerifyUser, FindUser);
+router.get("/get-sellers", VerifyUser, GetSellers);
+router.get("/get-customers", VerifyUser, GetCustomers);
+router.patch("/approve-seller/:sellerId", VerifyUser,IsAdmin, ApproveSeller);
 
 // Products Api
 router.post(

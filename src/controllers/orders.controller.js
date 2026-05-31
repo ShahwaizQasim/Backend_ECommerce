@@ -9,14 +9,14 @@ const CreateOrder = async (req, res) => {
         if (!productId) {
             res.status(400).send({ status: 400, message: "Product not found", error: true });
         }
-         if (!shippingAddress) {
+        if (!shippingAddress) {
             res.status(400).send({ status: 400, message: "Shipping Address Information is required", error: true });
         }
         const product = await ProductModel.findById(productId);
         if (!product) {
             res.status(404).send({ status: 404, message: "Product not found", error: true });
         }
-       
+
         let order = await OrderModel.create({
             productId,
             buyerId: req?.user._id,
