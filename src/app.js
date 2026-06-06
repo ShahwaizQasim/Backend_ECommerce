@@ -4,12 +4,37 @@ import connectDB from "./config/dbConnect.js";
 import { router } from "./routes/index.js";
 import cors from "cors";
 import Stripe from "stripe";
+import { Server } from "socket.io";
+import { createServer } from "http";
 
 const app = express();
 
 app.use(express.json());
 
 app.use(cors());
+
+const server = createServer(app);
+
+export const io = new Server(server, {
+  transport: ["websocket"],
+  cors: {
+    origin: ENV.CLIENT_URL,
+    methods: ["GET", "POST", "PATCH"],
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("User Connected:", socket.id);
+
+  socket.on("join-room", (userId) => {
+    socket.join(userId);
+    console.log(`User joined room: ${userId}`);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User Disconnected");
+  });
+});
 
 const stripe = new Stripe(ENV.STRIPE_SECRET_KEY);
 
@@ -56,11 +81,11 @@ app.post("/create-checkout-session", async (req, res) => {
     res
       .status(500)
       .send({ status: 500, message: error.message || "", error: true });
-      console.log(error);
-      
+    console.log(error);
+
   }
 });
 
-app.listen(ENV.PORT, () => {
-  console.log(`Example app listening on port ${ENV.PORT}`);
+server.listen(ENV.PORT, () => {
+  console.log(`Server running on port ${ENV.PORT}`);
 });

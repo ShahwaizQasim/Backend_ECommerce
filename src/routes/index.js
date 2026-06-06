@@ -23,7 +23,7 @@ router.post("/login", UserLogin);
 router.get("/UserInfo", VerifyUser, FindUser);
 router.get("/get-sellers", VerifyUser, GetSellers);
 router.get("/get-customers", VerifyUser, GetCustomers);
-router.patch("/approve-seller/:sellerId", VerifyUser,IsAdmin, ApproveSeller);
+router.patch("/approve-seller/:sellerId", VerifyUser, IsAdmin, ApproveSeller);
 
 // Products Api
 router.post(

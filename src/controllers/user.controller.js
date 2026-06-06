@@ -2,6 +2,7 @@ import { UserModel } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { ENV } from "../config/constant.js";
+import { io } from "../app.js";
 
 const UserRegister = async (req, res) => {
   try {
@@ -193,6 +194,13 @@ const ApproveSeller = async (req, res) => {
     seller.isSellerApproved = true;
 
     await seller.save();
+
+    console.log("EMIT TO:", seller._id.toString());
+    
+    io.to(seller._id.toString()).emit("seller-approved", {
+      sellerId: seller._id,
+      isSellerApproved: true,
+    });
 
     res.status(200).send({
       status: 200,
