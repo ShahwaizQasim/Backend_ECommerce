@@ -54,37 +54,71 @@ app.get("/", (req, res) => {
 app.use("/api", router);
 
 app.post("/create-checkout-session", async (req, res) => {
-  try {
-    const { product } = req.body; // product = name, image, price
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: product.name,
-              images: [product.image],
-            },
-            unit_amount: product.price * 100,
+  const { product, userId } = req.body;
+
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ["card"],
+    line_items: [
+      {
+        price_data: {
+          currency: "usd",
+          product_data: {
+            name: product.name,
+            images: [product.image],
           },
-          quantity: 1,
+          unit_amount: product.price * 100,
         },
-      ],
-      mode: "payment",
-      success_url: `${ENV.CLIENT_URL}/success`,
-      cancel_url: `${ENV.CLIENT_URL}/cancel`,
-    });
+        quantity: 1,
+      },
+    ],
+    mode: "payment",
 
-    res.status(200).json({ url: session.url });
-  } catch (error) {
-    res
-      .status(500)
-      .send({ status: 500, message: error.message || "", error: true });
-    console.log(error);
+    success_url: `${ENV.CLIENT_URL}/success`,
+    cancel_url: `${ENV.CLIENT_URL}/cancel`,
 
-  }
+    metadata: {
+      productId: product._id,
+      sellerId: product.sellerId,  // 🔥 key
+      userId: userId,
+      quantity: 1,
+    },
+  });
+
+  res.json({ url: session.url });
 });
+
+app.post("/stripe-webhook",
+  express.raw({ type: "application/json" }),
+  async (req, res) => {
+
+    const event = JSON.parse(req.body);
+
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object;
+
+      const { productId, sellerId, userId, quantity } = session.metadata;
+
+      // 🔥 ORDER CREATE HERE (MOST IMPORTANT)
+      await Order.create({
+        productId,
+        sellerId,
+        buyerId: userId,
+        quantity,
+        amount: session.amount_total / 100,
+        paymentStatus: "paid",
+        stripeSessionId: session.id,
+      });
+
+      // optional: seller earnings update
+      await Seller.findByIdAndUpdate(sellerId, {
+        $inc: { totalEarnings: session.amount_total / 100 }
+      });
+    }
+
+    res.json({ received: true });
+  }
+);
+
 
 server.listen(ENV.PORT, () => {
   console.log(`Server running on port ${ENV.PORT}`);
