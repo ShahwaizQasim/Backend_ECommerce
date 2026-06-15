@@ -34,7 +34,6 @@ router.post(
   AddProducts,
 );
 router.get("/get/products-get", VerifyUser, GetSellerProducts);
-router.get("/get/products-get", VerifyUser, GetSellerProducts);
 router.get("/get/all-products", GetAllProducts);
 router.get("/get/products/:id", VerifyUser, GetSingleProduct);
 
