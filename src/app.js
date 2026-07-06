@@ -6,12 +6,22 @@ import cors from "cors";
 import Stripe from "stripe";
 import { Server } from "socket.io";
 import { createServer } from "http";
+import rateLimit from "express-rate-limit";
 
 const app = express();
 
 app.use(express.json());
 
 app.use(cors());
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100,
+  message: "Too many requests, please try again later.",
+});
+
+// Sab routes par apply hoga
+app.use(limiter);
 
 const server = createServer(app);
 
@@ -118,6 +128,12 @@ app.post("/stripe-webhook",
     res.json({ received: true });
   }
 );
+
+app.use((err, req, res, next) => {
+  res.status(500).json({
+    message: err.message
+  });
+});
 
 
 server.listen(ENV.PORT, () => {

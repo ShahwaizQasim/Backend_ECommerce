@@ -195,8 +195,6 @@ const ApproveSeller = async (req, res) => {
 
     await seller.save();
 
-    console.log("EMIT TO:", seller._id.toString());
-    
     io.to(seller._id.toString()).emit("seller-approved", {
       sellerId: seller._id,
       isSellerApproved: true,
